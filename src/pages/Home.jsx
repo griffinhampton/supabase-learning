@@ -1,5 +1,6 @@
 import MovieCard from "../components/MovieCard"
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { gsap } from "gsap";
 import "../css/Home.css"
 import { searchMovies, getPopularMovies } from "../services/api";
 
@@ -9,6 +10,7 @@ function Home() {
         const [movies, setMovies] = useState([]);
         const [error, setError] = useState(null);
         const [loading, setLoading] = useState(true);
+    const rootRef = useRef(null)
 
         useEffect(() => {
             const loadPopularMovies = async () => {
@@ -26,9 +28,29 @@ function Home() {
 
             loadPopularMovies();
         }, [])
+
+        useEffect(() => {
+            if (loading) return
+            if (!rootRef.current) return
+
+            const ctx = gsap.context(() => {
+                gsap.fromTo(
+                    ".movie-card",
+                    { opacity: 0, y: 24 },
+                    {
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.6,
+                        ease: "power2.out",
+                        stagger: 0.03,
+                    }
+                )
+            }, rootRef)
+
+            return () => ctx.revert()
+        }, [loading, movies])
         //typical convention, get and set variables next to each other in useState
         //when a state change occurs, the entire component is reran or rerendered
-        let moviesShown = 0
     //put prevent default in the functions as seen below
     const handleSearch = async (e) => {
         e.preventDefault();
@@ -51,7 +73,7 @@ function Home() {
     };
 
     return (
-    <div className = "home">
+    <div className = "home" ref={rootRef}>
 
         <form onSubmit={handleSearch} className="search-form">
             <input type="text"

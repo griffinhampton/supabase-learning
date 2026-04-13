@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import FakeMovieCard from "../components/fakemoviecard";
 import "../css/MovieCard.css"
 
