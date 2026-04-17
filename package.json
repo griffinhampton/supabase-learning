@@ -7,11 +7,13 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "db:test": "node server/mysql.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.103.0",
     "gsap": "^3.14.2",
+    "mysql": "^2.18.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.13.0"

@@ -2,7 +2,7 @@ import MovieCard from "../components/MovieCard"
 import { useState, useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import "../css/Home.css"
-import { searchMovies, getPopularMovies } from "../services/api";
+import { searchMovies, getPopularMovies, getMovieDetails } from "../services/api";
 
 
 function Home() {
@@ -10,6 +10,10 @@ function Home() {
         const [movies, setMovies] = useState([]);
         const [error, setError] = useState(null);
         const [loading, setLoading] = useState(true);
+        const [debugMovieId, setDebugMovieId] = useState("550");
+        const [movieJsonOutput, setMovieJsonOutput] = useState("");
+        const [jsonLoading, setJsonLoading] = useState(false);
+        const [jsonError, setJsonError] = useState(null);
     const rootRef = useRef(null)
 
         useEffect(() => {
@@ -72,6 +76,27 @@ function Home() {
         setSearchQuery("")
     };
 
+    const handleInspectMovieJson = async () => {
+        if (!debugMovieId.trim()) {
+            setJsonError("Enter a movie ID first.")
+            return
+        }
+
+        setJsonLoading(true)
+        setJsonError(null)
+
+        try {
+            const movie = await getMovieDetails(debugMovieId.trim())
+            setMovieJsonOutput(JSON.stringify(movie, null, 2))
+        } catch (err) {
+            console.log(err)
+            setMovieJsonOutput("")
+            setJsonError("Could not fetch movie details. Check the movie ID.")
+        } finally {
+            setJsonLoading(false)
+        }
+    }
+
     return (
     <div className = "home" ref={rootRef}>
 
@@ -84,6 +109,32 @@ function Home() {
              />
             <button type="submit" className="search-button">Search</button>
         </form>
+
+        <section className="json-debug-panel">
+            <h2 className="json-debug-title">Single Movie JSON Inspector</h2>
+            <p className="json-debug-copy">Use a TMDB movie ID (example: 550) to inspect the full response payload.</p>
+            <div className="json-debug-controls">
+                <input
+                    type="text"
+                    className="search-input"
+                    value={debugMovieId}
+                    onChange={(e) => setDebugMovieId(e.target.value)}
+                    placeholder="Movie ID"
+                />
+                <button
+                    type="button"
+                    className="search-button"
+                    onClick={handleInspectMovieJson}
+                    disabled={jsonLoading}
+                >
+                    {jsonLoading ? "Loading JSON..." : "Fetch JSON"}
+                </button>
+            </div>
+            {jsonError && <div className="error-message">{jsonError}</div>}
+            {movieJsonOutput && (
+                <pre className="json-debug-output">{movieJsonOutput}</pre>
+            )}
+        </section>
 
             {error && <div className="error-message">{error}</div>}
 
